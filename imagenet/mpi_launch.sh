@@ -1,4 +1,5 @@
 
+sudo su
 echo "tcp://${SERVER_IP}:${SERVER_PORT}"
 ulimit -n 1000000
 python -m torch.distributed.launch \--nproc_per_node=1 --nnodes=$OMPI_COMM_WORLD_SIZE --node_rank=$OMPI_COMM_WORLD_RANK --master_addr="0.0.0.0" \
