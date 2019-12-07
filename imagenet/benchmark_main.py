@@ -194,8 +194,8 @@ def main():
         dist.init_process_group(backend=args.dist_backend, init_method = args.dist_url, world_size = args.world_size, rank = int(os.environ['RANK']))
         torch.cuda.set_device(args.local_rank)
 
-        if dist.get_rank() == 0:
-            print(str(dist.get_world_size()) + ' number of workers is set up!')
+        print(str(dist.get_rank()) + ': ' + str(dist.get_world_size()) + ' workers are setting up!')
+
 
     if dist.get_rank() == 0:
         torch.manual_seed(args.seed)
