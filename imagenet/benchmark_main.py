@@ -378,6 +378,8 @@ def train(train_loader, model, criterion, optimizer, epoch, log_writer):
                    epoch, i, len(train_loader), batch_time=batch_time,
                    data_time=data_time, loss=losses, top1=top1, top5=top5, train_time=train_record.get_time()))
             train_record.set()
+            # debug
+            break
 
     if log_writer:
         log_writer.add_scalar('train_iter/top1', top1.get_avg(), iter_ptr)
