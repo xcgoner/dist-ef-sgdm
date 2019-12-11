@@ -241,7 +241,7 @@ def main():
 
     train_loader,val_loader,train_sampler = get_loaders(traindir, valdir, split_data = not args.test_evaluate, seed = args.seed)
 
-    if args.evaluate: return validate(val_loader, model, criterion, epoch, start_time)
+    if args.evaluate: return validate(val_loader, model, criterion, 0, start_time)
 
     for epoch in range(args.start_epoch, args.epochs):
 
