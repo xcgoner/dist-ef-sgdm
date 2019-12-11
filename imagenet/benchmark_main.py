@@ -324,6 +324,7 @@ def train(train_loader, model, criterion, optimizer, epoch, log_writer):
     torch.cuda.synchronize()
     i = -1
     #while input is not None:
+    print(len(train_loader))
     for input, target in train_loader:
         assert input.size(0) == target.size(0)
         i += 1
