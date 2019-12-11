@@ -5,6 +5,7 @@ RANK="$4"
 
 echo "tcp://${SERVER_IP}:${SERVER_PORT}"
 ulimit -n 1000000
+cd /home/ubuntu/src/ersgd/dist-ef-sgdm/imagenet
 python3.6 -m torch.distributed.launch \
     --nproc_per_node=1 --nnodes=$WORLD_SIZE --node_rank=$RANK --master_addr="0.0.0.0" \
     --master_port=$SERVER_PORT benchmark_main.py ~/data/imagenet -a resnet50 -b 128 --lr 0.1 \
