@@ -12,7 +12,7 @@ do
         SERVER_IP="${line}"
     fi
     echo "${RANK} in ${WORLD_SIZE}: ${line}, tcp://${SERVER_IP}:${SERVER_PORT}"
-    ssh "$line" "bash /home/ubuntu/src/ersgd/dist-ef-sgdm/imagenet/ssh_cmd.sh ${SERVER_IP} ${SERVER_PORT} ${WORLD_SIZE} ${RANK}"
+    ssh "$line" "bash /home/ubuntu/src/ersgd/dist-ef-sgdm/imagenet/ssh_cmd.sh ${SERVER_IP} ${SERVER_PORT} ${WORLD_SIZE} ${RANK}" &
     RANK=$(( RANK+1 ))
 done < "$INPUT_FILE"
 
