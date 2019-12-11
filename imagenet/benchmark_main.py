@@ -408,6 +408,10 @@ def train(train_loader, model, criterion, optimizer, epoch, log_writer):
 
 
 def validate(val_loader, model, criterion, epoch, start_time, log_writer):
+
+    # debug
+    print("validate")
+
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
