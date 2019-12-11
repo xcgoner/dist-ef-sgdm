@@ -324,11 +324,14 @@ def train(train_loader, model, criterion, optimizer, epoch, log_writer):
     torch.cuda.synchronize()
     i = -1
     #while input is not None:
-    print(len(train_loader))
     for input, target in train_loader:
         assert input.size(0) == target.size(0)
         i += 1
         iter_ptr += 1
+        
+        # debug
+        if dist.get_rank() == 0:
+            print(i)
 
         if args.prof and (i > 200): break
         # measure data loading time
