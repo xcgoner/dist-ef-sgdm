@@ -328,10 +328,6 @@ def train(train_loader, model, criterion, optimizer, epoch, log_writer):
         assert input.size(0) == target.size(0)
         i += 1
         iter_ptr += 1
-        
-        # debug
-        if dist.get_rank() == 0:
-            print(i)
 
         if args.prof and (i > 200): break
         # measure data loading time
@@ -414,9 +410,6 @@ def train(train_loader, model, criterion, optimizer, epoch, log_writer):
 
 
 def validate(val_loader, model, criterion, epoch, start_time, log_writer):
-
-    # debug
-    print("validate")
 
     batch_time = AverageMeter()
     losses = AverageMeter()
