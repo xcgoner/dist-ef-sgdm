@@ -1,5 +1,6 @@
 INPUT_FILE="$1"
 SERVER_PORT="$2"
+OPTIMIZER="$3"
 
 RANK=0
 
@@ -12,7 +13,7 @@ do
         SERVER_IP="${line}"
     fi
     echo "${RANK} in ${WORLD_SIZE}: ${line}, tcp://${SERVER_IP}:${SERVER_PORT}"
-    ssh "$line" "bash /home/ubuntu/src/ersgd/dist-ef-sgdm/imagenet/ssh_cmd.sh ${SERVER_IP} ${SERVER_PORT} ${WORLD_SIZE} ${RANK}" &
+    ssh "$line" "bash /home/ubuntu/src/ersgd/dist-ef-sgdm/imagenet/ssh_cmd.sh ${SERVER_IP} ${SERVER_PORT} ${WORLD_SIZE} ${RANK} ${OPTIMIZER}" &
     RANK=$(( RANK+1 ))
 done < "$INPUT_FILE"
 
