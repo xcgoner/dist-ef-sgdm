@@ -19,6 +19,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
 
+import EF_SGD
 import Signum_SGD
 import Imagefolder_train_val
 import sys
@@ -70,6 +71,7 @@ def get_parser():
     parser.add_argument('--dist_backend', default='gloo', type=str, help='distributed backend')
     parser.add_argument('--world-size', default=1, type=int)
     parser.add_argument('--rank', default=0, type=int)
+    parser.add_argument('--optimizer', default='efsgd', type=str, choices=['sgd', 'efsgd', 'signum'], help='optimizer')
     parser.add_argument('--all_reduce', action='store_true', help='Using all_reduce')
     parser.add_argument('--signum', action='store_true', help='Using Signum')
     parser.add_argument('--compress', action='store_true', help='Initiate compression for Signum')
@@ -116,7 +118,7 @@ train_record = Time_recorder()
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)s %(levelname)s %(message)s',
                     datefmt='%m-%d %H:%M',
-                    filename='./train_imagenet_signum.log',
+                    filename='./train_imagenet_' + args.optimizer + '.log',
                     filemode='a')
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
@@ -220,7 +222,21 @@ def main():
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda()
 
-    optimizer = Signum_SGD.SGD_distribute(param_copy, args, log_writer)
+    if args.optimizer == 'sgd':
+        args.all_reduce = True
+        args.signum = False
+        args.compress = False
+        optimizer = EF_SGD.SGD_distribute(param_copy, args, log_writer)
+    elif args.optimizer == 'efsgd':
+        args.all_reduce = False
+        args.signum = True
+        args.compress = True
+        optimizer = EF_SGD.SGD_distribute(param_copy, args, log_writer)
+    elif args.optimizer == 'signum':
+        args.all_reduce = False
+        args.signum = True
+        args.compress = True
+        optimizer = Signum_SGD.SGD_distribute(param_copy, args, log_writer)
 
     best_prec1 = 0
 
