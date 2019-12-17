@@ -75,6 +75,7 @@ def get_parser():
     parser.add_argument('--all_reduce', action='store_true', help='Using all_reduce')
     parser.add_argument('--signum', action='store_true', help='Using Signum')
     parser.add_argument('--compress', action='store_true', help='Initiate compression for Signum')
+    parser.add_argument('--reset-interval', default=16, type=int, help='Interval for error reset')
     parser.add_argument("--local_rank", default=0, type=int)
     parser.add_argument("--gpus_per_machine", default=1, type=int)
     parser.add_argument('--test_evaluate', action='store_true', help='Initiate test evaluation')

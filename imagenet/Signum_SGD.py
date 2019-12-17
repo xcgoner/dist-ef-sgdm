@@ -52,20 +52,25 @@ class SGD_distribute(Optimizer):
             self.local_dst_in_global = self.global_rank - self.local_rank
 
             self.inter_node_group = []
+            # number of machines
             self.nodes = dist.get_world_size() // gpus_per_machine
 
             self.intra_node_group_list = []
             for index in range(self.nodes):
                 # set inter_node_group
+                # first worker in each machine
                 self.inter_node_group.append(0 + index * gpus_per_machine)
                 # set all intra_node_group
                 intra_node_group_temp = []
+                # local workers
                 for intra_index in range(gpus_per_machine):
                     intra_node_group_temp.append(intra_index + index * gpus_per_machine)
                 intra_node_group_temp = dist.new_group(intra_node_group_temp)
                 self.intra_node_group_list.append(intra_node_group_temp)
 
+                # if this worker is the first worker in a machine
                 if self.local_dst_in_global == 0 + index * gpus_per_machine:
+                    # machine index
                     self.nodes_rank = index
 
 
@@ -140,16 +145,19 @@ class SGD_distribute(Optimizer):
                             d_p_new = torch.sign(d_p_new)
 
                         if self.local_rank == 0:
+                            # send compressed tensor to the server node
                             if dist.get_rank() == 0:
                                 d_p_new_list = []
                                 for index, inter_node_group in enumerate(self.inter_node_group_list):
                                     d_p_temp = d_p_new.clone()
+                                    # broadcast: tensor, source, group
                                     dist.broadcast(d_p_temp, self.inter_node_list[index + 1], group = inter_node_group)
                                     d_p_new_list.append(d_p_temp)
                             else:
                                 dist.broadcast(d_p_new, dist.get_rank(), group = self.inter_node_group_list[self.nodes_rank - 1])                                
                                 dist.barrier(group = self.all_inter_node_group)
 
+                            # allreduce on server node
                             if dist.get_rank() == 0:
                                 if self.compression_buffer:
                                     d_p_new_list.append(d_p_new) #count itself
@@ -159,6 +167,7 @@ class SGD_distribute(Optimizer):
                                         d_p_new.add_(d_p_temp)
                                     d_p_new = d_p_new / self.nodes
                                 dist.barrier(group = self.all_inter_node_group)
+                            # broadcast
                             dist.broadcast(d_p_new, 0, group = self.all_inter_node_group)
 
                         if self.compression_buffer:
