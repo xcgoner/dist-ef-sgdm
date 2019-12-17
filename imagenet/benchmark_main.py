@@ -21,6 +21,7 @@ import torchvision.models as models
 
 import EF_SGD
 import Signum_SGD
+import ER_SGD
 import Imagefolder_train_val
 import sys
 import tensorboardX
