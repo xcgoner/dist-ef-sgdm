@@ -71,7 +71,7 @@ def get_parser():
     parser.add_argument('--dist_backend', default='gloo', type=str, help='distributed backend')
     parser.add_argument('--world-size', default=1, type=int)
     parser.add_argument('--rank', default=0, type=int)
-    parser.add_argument('--optimizer', default='efsgd', type=str, choices=['sgd', 'efsgd', 'signum'], help='optimizer')
+    parser.add_argument('--optimizer', default='efsgd', type=str, choices=['sgd', 'efsgd', 'signum', 'ersgd'], help='optimizer')
     parser.add_argument('--all_reduce', action='store_true', help='Using all_reduce')
     parser.add_argument('--signum', action='store_true', help='Using Signum')
     parser.add_argument('--compress', action='store_true', help='Initiate compression for Signum')
@@ -238,6 +238,11 @@ def main():
         args.signum = True
         args.compress = True
         optimizer = Signum_SGD.SGD_distribute(param_copy, args, log_writer)
+    elif args.optimizer == 'ersgd':
+        args.all_reduce = False
+        args.signum = True
+        args.compress = True
+        optimizer = ER_SGD.SGD_distribute(param_copy, args, log_writer)
 
     best_prec1 = 0
 
@@ -273,6 +278,9 @@ def main():
             train(train_loader, model, criterion, optimizer, epoch, log_writer)
 
         if args.prof: break
+        if args.optimizer == 'ersgd':
+            optimizer.average_params()
+            optimizer.average_momentum()
         prec1 = validate(val_loader, model, criterion, epoch, start_time, log_writer)
 
 
