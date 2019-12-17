@@ -104,7 +104,7 @@ class SGD_distribute(Optimizer):
             for p in group['params']:
                 if p.grad is None:
                     continue
-                dist.all_reduce(p.data, op=dist.reduce_op.SUM)
+                dist.all_reduce(p.data, op=dist.ReduceOp.SUM)
                 p.data /= self.nodes
     
     def average_momentum(self):
@@ -115,7 +115,7 @@ class SGD_distribute(Optimizer):
                     continue
                 param_state = self.state[p]
                 buf = param_state['momentum_buffer']
-                dist.all_reduce(buf, op=dist.reduce_op.SUM)
+                dist.all_reduce(buf, op=dist.ReduceOp.SUM)
                 buf /= self.nodes
 
 
