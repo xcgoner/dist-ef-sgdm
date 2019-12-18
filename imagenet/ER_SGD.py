@@ -28,6 +28,7 @@ class SGD_distribute(Optimizer):
         self.compression_buffer = compression_buffer
         self.all_reduce = all_reduce
         self.signum = args.signum
+        self.nesterov = args.nesterov
         self.log_writer = log_writer
 
         # error reset
@@ -265,20 +266,26 @@ class SGD_distribute(Optimizer):
                             buf = param_state['momentum_buffer']
 
                         buf.mul_(momentum).add_(p.grad.data)
-                        p.grad.data.add_(momentum, buf)
-                    if weight_decay != 0:
-                        # weight decay
-                        if momentum != 0:
-                            param_state = self.state[p]
-                            if 'wd_mom' not in param_state:
-                                buf = param_state['wd_mom'] = torch.zeros_like(p.data)
-                            else:
-                                buf = param_state['wd_mom']
-
-                            buf.mul_(momentum).add_(weight_decay, p.data)
+                        if weight_decay != 0:
+                            buf.add_(weight_decay, p.data)
+                        if self.nesterov:
                             p.grad.data.add_(momentum, buf)
+                        else:
+                            p.grad.data.copy_(buf)
+                            
+                    # if weight_decay != 0:
+                    #     # weight decay
+                    #     if momentum != 0:
+                    #         param_state = self.state[p]
+                    #         if 'wd_mom' not in param_state:
+                    #             buf = param_state['wd_mom'] = torch.zeros_like(p.data)
+                    #         else:
+                    #             buf = param_state['wd_mom']
 
-                        p.grad.data.add_(weight_decay, p.data)
+                    #         buf.mul_(momentum).add_(weight_decay, p.data)
+                    #         if self.nesterov:
+                    #             p.grad.data.add_(momentum, buf)
+
 
                 p.data.add_(-group['lr'], p.grad.data)
 
