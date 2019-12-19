@@ -61,7 +61,7 @@ class compressor:
         new_tensor = torch.sum(new_tensor,0)
         new_tensor = new_tensor.view(-1,32).permute(1,0)
         new_tensor = torch.sign(new_tensor)
-        new_tensor = bit2byte.packing(new_tensor)
+        new_tensor = bit2byte.packing(new_tensor.to(dtype=torch.int32))
         new_tensor = new_tensor.to(dtype=torch.int32)
         return new_tensor
 
