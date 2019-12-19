@@ -23,6 +23,7 @@ import EF_SGD
 import Signum_SGD
 import ER_SGD
 import ER_DSGD
+import ER_BSSGD
 import Imagefolder_train_val
 import sys
 import tensorboardX
@@ -79,6 +80,7 @@ def get_parser():
     parser.add_argument('--compress', action='store_true', help='Initiate compression for Signum')
     parser.add_argument('--nesterov', action='store_true', help='nesterov momentum')
     parser.add_argument('--reset-interval', default=16, type=int, help='Interval for error reset')
+    parser.add_argument('--sparse-ratio', default=1-1.0/32, type=float, help='ratio of sparsification')
     parser.add_argument("--local_rank", default=0, type=int)
     parser.add_argument("--gpus_per_machine", default=1, type=int)
     parser.add_argument('--test_evaluate', action='store_true', help='Initiate test evaluation')
@@ -283,6 +285,12 @@ def main():
     elif args.optimizer == 'localsgdm':
         args.nesterov = False
         optimizer = Local_SGD.SGD_distribute(param_copy, args, log_writer)
+    elif args.optimizer == 'erbssgdn':
+        args.nesterov = True
+        optimizer = ER_BSSGD.SGD_distribute(param_copy, args, log_writer)
+    elif args.optimizer == 'erbssgdm':
+        args.nesterov = False
+        optimizer = ER_BSSGD.SGD_distribute(param_copy, args, log_writer)
 
 
     traindir = os.path.join(args.data, 'train')
