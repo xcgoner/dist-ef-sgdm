@@ -214,6 +214,18 @@ def main():
 
     model = model.cuda()
 
+    best_prec1 = 0
+
+    # optionally resume from a checkpoint
+    if args.resume:
+        if os.path.isfile(args.resume):
+            checkpoint = torch.load(args.resume, map_location = lambda storage, loc: storage.cuda(args.gpu))
+            args.start_epoch = checkpoint['epoch']
+            best_prec1 = checkpoint['best_prec1']
+            model.load_state_dict(checkpoint['state_dict'])
+            optimizer.load_state_dict(checkpoint['optimizer'])
+        else: print("=> no checkpoint found at '{}'".format(args.resume))
+
     #model.para sync
     global param_copy
     param_copy = list(model.parameters())
@@ -271,18 +283,6 @@ def main():
     elif args.optimizer == 'localsgdm':
         args.nesterov = False
         optimizer = Local_SGD.SGD_distribute(param_copy, args, log_writer)
-
-    best_prec1 = 0
-
-    # optionally resume from a checkpoint
-    if args.resume:
-        if os.path.isfile(args.resume):
-            checkpoint = torch.load(args.resume, map_location = lambda storage, loc: storage.cuda(args.gpu))
-            args.start_epoch = checkpoint['epoch']
-            best_prec1 = checkpoint['best_prec1']
-            model.load_state_dict(checkpoint['state_dict'])
-            optimizer.load_state_dict(checkpoint['optimizer'])
-        else: print("=> no checkpoint found at '{}'".format(args.resume))
 
 
     traindir = os.path.join(args.data, 'train')

@@ -7,7 +7,7 @@ torch::Tensor packing(torch::Tensor src)
     //make sure shift just gnerates zero
 
     auto options = torch::TensorOptions()
-                       .dtype(torch::kInt32)
+                       .dtype(torch::kInt)
                        .device(src.device());
     torch::Tensor a = torch::zeros(2, options);
     a[0] = 1;
