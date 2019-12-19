@@ -300,7 +300,7 @@ def main():
             train(train_loader, model, criterion, optimizer, epoch, log_writer)
 
         if args.prof: break
-        if args.optimizer.startswith('ersgd'):
+        if args.optimizer.startswith('er'):
             optimizer.average_params()
             optimizer.average_momentum()
         prec1 = validate(val_loader, model, criterion, epoch, start_time, log_writer)

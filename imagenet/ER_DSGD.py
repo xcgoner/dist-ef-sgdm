@@ -85,7 +85,7 @@ class SGD_distribute(Optimizer):
             for i in range(len(self.inter_node_list)):
                 self.inter_node_group_list[i] = dict()
             for i in range(len(self.inter_node_list)):
-                for j in range(j):
+                for j in range(i):
                     temp = dist.new_group([self.inter_node_list[i],self.inter_node_list[j]])
                     self.inter_node_group_list[i][j] = temp
                     self.inter_node_group_list[j][i] = temp
