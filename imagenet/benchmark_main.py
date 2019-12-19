@@ -73,7 +73,7 @@ def get_parser():
     parser.add_argument('--dist_backend', default='gloo', type=str, help='distributed backend')
     parser.add_argument('--world-size', default=1, type=int)
     parser.add_argument('--rank', default=0, type=int)
-    parser.add_argument('--optimizer', default='efsgd', type=str, choices=['sgd', 'efsgd', 'signum', 'ersgdm', 'ersgdn', 'erdsgdm', 'erdsgdn'], help='optimizer')
+    parser.add_argument('--optimizer', default='efsgd', type=str, choices=['sgd', 'efsgd', 'signum', 'ersgdm', 'ersgdn', 'erdsgdm', 'erdsgdn', 'localsgdm', 'localsgdn'], help='optimizer')
     parser.add_argument('--all_reduce', action='store_true', help='Using all_reduce')
     parser.add_argument('--signum', action='store_true', help='Using Signum')
     parser.add_argument('--compress', action='store_true', help='Initiate compression for Signum')
