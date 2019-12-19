@@ -265,6 +265,12 @@ def main():
         args.compress = True
         args.nesterov = False
         optimizer = ER_DSGD.SGD_distribute(param_copy, args, log_writer)
+    elif args.optimizer == 'localsgdn':
+        args.nesterov = True
+        optimizer = Local_SGD.SGD_distribute(param_copy, args, log_writer)
+    elif args.optimizer == 'localsgdm':
+        args.nesterov = False
+        optimizer = Local_SGD.SGD_distribute(param_copy, args, log_writer)
 
     best_prec1 = 0
 
