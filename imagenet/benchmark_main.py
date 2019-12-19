@@ -22,6 +22,7 @@ import torchvision.models as models
 import EF_SGD
 import Signum_SGD
 import ER_SGD
+import ER_DSGD
 import Imagefolder_train_val
 import sys
 import tensorboardX
@@ -72,7 +73,7 @@ def get_parser():
     parser.add_argument('--dist_backend', default='gloo', type=str, help='distributed backend')
     parser.add_argument('--world-size', default=1, type=int)
     parser.add_argument('--rank', default=0, type=int)
-    parser.add_argument('--optimizer', default='efsgd', type=str, choices=['sgd', 'efsgd', 'signum', 'ersgdm', 'ersgdn'], help='optimizer')
+    parser.add_argument('--optimizer', default='efsgd', type=str, choices=['sgd', 'efsgd', 'signum', 'ersgdm', 'ersgdn', 'erdsgdm', 'erdsgdn'], help='optimizer')
     parser.add_argument('--all_reduce', action='store_true', help='Using all_reduce')
     parser.add_argument('--signum', action='store_true', help='Using Signum')
     parser.add_argument('--compress', action='store_true', help='Initiate compression for Signum')
@@ -252,6 +253,18 @@ def main():
         args.compress = True
         args.nesterov = False
         optimizer = ER_SGD.SGD_distribute(param_copy, args, log_writer)
+    elif args.optimizer == 'erdsgdn':
+        args.all_reduce = False
+        args.signum = True
+        args.compress = True
+        args.nesterov = True
+        optimizer = ER_DSGD.SGD_distribute(param_copy, args, log_writer)
+    elif args.optimizer == 'erdsgdm':
+        args.all_reduce = False
+        args.signum = True
+        args.compress = True
+        args.nesterov = False
+        optimizer = ER_DSGD.SGD_distribute(param_copy, args, log_writer)
 
     best_prec1 = 0
 
