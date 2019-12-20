@@ -322,7 +322,7 @@ def _train_multi_device(symbol, ctx, arg_names, param_names, aux_names,
 
                 if update_on_kvstore:
                     # debug
-                    logging.info('_update_params_on_kvstore')
+                    logger.info('_update_params_on_kvstore')
                     if 'nccl' in kvstore.type:
                         _update_params_on_kvstore_nccl(executor_manager.param_arrays,
                                                        executor_manager.grad_arrays,
@@ -333,7 +333,7 @@ def _train_multi_device(symbol, ctx, arg_names, param_names, aux_names,
                                                   kvstore, executor_manager.param_names)
                 else:
                     # debug
-                    logging.info('_update_params')
+                    logger.info('_update_params')
                     _update_params(executor_manager.param_arrays,
                                    executor_manager.grad_arrays,
                                    updater=updater,
@@ -886,6 +886,9 @@ class FeedForward(BASE_ESTIMATOR):
                 for k in range(len(self.ctx)):
                     param_idx2name[i*len(self.ctx)+k] = n
         self.kwargs["param_idx2name"] = param_idx2name
+
+        # debug 
+        logger.info(self.optimizer)
 
         # init optmizer
         if isinstance(self.optimizer, str):
