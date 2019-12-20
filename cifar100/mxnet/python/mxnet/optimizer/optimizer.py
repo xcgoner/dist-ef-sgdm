@@ -37,6 +37,7 @@ from ..random import normal
 __all__ = [
     'AdaDelta', 'AdaGrad', 'Adam', 'Adamax', 'DCASGD', 'FTML', 'Ftrl', 'LBSGD',
     'NAG', 'NDabs', 'Nadam', 'Optimizer', 'RMSProp', 'SGD', 'SGLD', 'Signum',
+    'SignSGD', 'DistEFSGD', 
     'Test', 'Updater', 'ccSGD', 'create', 'get_updater', 'register'
 ]
 
