@@ -149,7 +149,8 @@ class KVStore {
    */
   virtual void Push(const std::vector<int>& keys,
                     const std::vector<NDArray>& values,
-                    int priority = 0)  = 0;
+                    int priority = 0,
+                    int reduce_type = -1)  = 0;
 
   /*!
    * \brief push a list of key-value pairs into the store
@@ -159,7 +160,8 @@ class KVStore {
    */
   virtual void Push(const std::vector<std::string>& str_keys,
                     const std::vector<NDArray>& values,
-                    int priority = 0)  = 0;
+                    int priority = 0,
+                    int reduce_type = -1)  = 0;
   /*!
    * \brief pull a list of key-value pairs from the store
    *

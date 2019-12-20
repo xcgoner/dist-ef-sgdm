@@ -116,9 +116,10 @@ class KVStoreLocal : public KVStore {
 
   void Push(const std::vector<int>& keys,
             const std::vector<NDArray>& values,
-            int priority) override {
+            int priority,
+            int reduce_type) override {
     SetKeyType(kIntKey);
-    PushImpl(keys, values, priority);
+    PushImpl(keys, values, priority, reduce_type);
   }
 
   void Pull(const std::vector<int>& keys,
@@ -138,11 +139,12 @@ class KVStoreLocal : public KVStore {
 
   void Push(const std::vector<std::string>& str_keys,
             const std::vector<NDArray>& values,
-            int priority) override {
+            int priority,
+            int reduce_type) override {
     SetKeyType(kStringKey);
     std::vector<int> keys(str_keys.size());
     LookupKeys(str_keys, &keys);
-    PushImpl(keys, values, priority);
+    PushImpl(keys, values, priority, reduce_type);
   }
 
   void Pull(const std::vector<std::string>& str_keys,
@@ -183,13 +185,14 @@ class KVStoreLocal : public KVStore {
 
   virtual void PushImpl(const std::vector<int>& keys,
                         const std::vector<NDArray>& values,
-                        int priority) {
+                        int priority,
+                        int reduce_type) {
     std::vector<int> uniq_keys;
     std::vector<std::vector<NDArray> > grouped_vals;
     GroupKVPairsPush(keys, values, &uniq_keys, &grouped_vals, false);
     for (size_t i = 0; i < uniq_keys.size(); ++i) {
       int key = uniq_keys[i];
-      const NDArray& merged = comm_->Reduce(key, grouped_vals[i], priority);
+      const NDArray& merged = comm_->Reduce(key, grouped_vals[i], priority, reduce_type);
       NDArray& local = local_[key];
       if (updater_ != nullptr) {
         CHECK(!local.is_none()) << "key " << key << " has not been inited";

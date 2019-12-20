@@ -206,7 +206,8 @@ def _train_multi_device(symbol, ctx, arg_names, param_names, aux_names,
                         epoch_end_callback=None, batch_end_callback=None,
                         logger=None, work_load_list=None, monitor=None,
                         eval_end_callback=None,
-                        eval_batch_end_callback=None, sym_gen=None):
+                        eval_batch_end_callback=None, sym_gen=None,
+                        error_reset=0):
     """Internal training function on multiple devices.
     This function will also work for single device as well.
 
@@ -291,6 +292,10 @@ def _train_multi_device(symbol, ctx, arg_names, param_names, aux_names,
                             param_names=executor_manager.param_names,
                             update_on_kvstore=update_on_kvstore)
 
+    # local sgd
+    if error_reset > 0:
+        reset_counter = 0
+
     # Now start training
     train_data.reset()
     for epoch in range(begin_epoch, end_epoch):
@@ -302,6 +307,11 @@ def _train_multi_device(symbol, ctx, arg_names, param_names, aux_names,
         while True:
             do_reset = True
             for data_batch in train_data:
+
+                # local sgd
+                if error_reset > 0:
+                    reset_counter += 1
+
                 executor_manager.load_data_batch(data_batch)
 
                 if monitor is not None:
@@ -311,6 +321,8 @@ def _train_multi_device(symbol, ctx, arg_names, param_names, aux_names,
                 executor_manager.backward()
 
                 if update_on_kvstore:
+                    # debug
+                    print('_update_params_on_kvstore')
                     if 'nccl' in kvstore.type:
                         _update_params_on_kvstore_nccl(executor_manager.param_arrays,
                                                        executor_manager.grad_arrays,
@@ -320,6 +332,8 @@ def _train_multi_device(symbol, ctx, arg_names, param_names, aux_names,
                                                   executor_manager.grad_arrays,
                                                   kvstore, executor_manager.param_names)
                 else:
+                    # debug
+                    print('_update_params')
                     _update_params(executor_manager.param_arrays,
                                    executor_manager.grad_arrays,
                                    updater=updater,
@@ -802,7 +816,7 @@ class FeedForward(BASE_ESTIMATOR):
     def fit(self, X, y=None, eval_data=None, eval_metric='acc',
             epoch_end_callback=None, batch_end_callback=None, kvstore='local', logger=None,
             work_load_list=None, monitor=None, eval_end_callback=LogValidationMetricsCallback(),
-            eval_batch_end_callback=None):
+            eval_batch_end_callback=None, error_reset=0):
         """Fit the model.
 
         Parameters
@@ -898,7 +912,8 @@ class FeedForward(BASE_ESTIMATOR):
                             logger=logger, work_load_list=work_load_list, monitor=monitor,
                             eval_end_callback=eval_end_callback,
                             eval_batch_end_callback=eval_batch_end_callback,
-                            sym_gen=self.sym_gen)
+                            sym_gen=self.sym_gen,
+                            error_reset=error_reset)
 
 
     def save(self, prefix, epoch=None):

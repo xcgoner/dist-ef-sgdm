@@ -884,7 +884,8 @@ int MXKVStorePush(KVStoreHandle handle,
                   mx_uint num,
                   const int* keys,
                   NDArrayHandle* vals,
-                  int priority) {
+                  int priority,
+                  int reduce_type) {
   API_BEGIN();
   std::vector<int> v_keys(num);
   std::vector<NDArray> v_vals(num);
@@ -892,7 +893,7 @@ int MXKVStorePush(KVStoreHandle handle,
     v_keys[i] = keys[i];
     v_vals[i] = *static_cast<NDArray*>(vals[i]);
   }
-  static_cast<KVStore*>(handle)->Push(v_keys, v_vals, priority);
+  static_cast<KVStore*>(handle)->Push(v_keys, v_vals, priority, reduce_type);
   API_END();
 }
 
@@ -900,7 +901,8 @@ int MXKVStorePushEx(KVStoreHandle handle,
                   mx_uint num,
                   const char** keys,
                   NDArrayHandle* vals,
-                  int priority) {
+                  int priority,
+                  int reduce_type) {
   API_BEGIN();
   std::vector<std::string> v_keys(num);
   std::vector<NDArray> v_vals(num);
@@ -908,7 +910,7 @@ int MXKVStorePushEx(KVStoreHandle handle,
     v_keys[i] = keys[i];
     v_vals[i] = *static_cast<NDArray*>(vals[i]);
   }
-  static_cast<KVStore*>(handle)->Push(v_keys, v_vals, priority);
+  static_cast<KVStore*>(handle)->Push(v_keys, v_vals, priority, reduce_type);
   API_END();
 }
 

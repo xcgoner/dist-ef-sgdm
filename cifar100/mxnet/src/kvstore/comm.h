@@ -201,7 +201,7 @@ class CommCPU : public Comm {
   }
 
   const NDArray& Reduce(int key, const std::vector<NDArray>& src,
-                        int priority) override {
+                        int priority, int reduce_type = -1) override {
     auto& buf = merge_buf_[key];
     const auto stype = src[0].storage_type();
     // avoid extra copy for single device, but it may bring problems for
@@ -268,7 +268,9 @@ class CommCPU : public Comm {
         mutable_vars.push_back(mom_vec[i].var());
       }
 
-      int reduce_type = reduce_type_;
+      if (reduce_type == -1) {
+        reduce_type = reduce_type_;
+      }
 
       Engine::Get()->PushAsync(
         [reduce, err_server, err_worker_vec, delta_vec, tilde_delta, mom_vec, reduce_type, this](RunContext rctx,

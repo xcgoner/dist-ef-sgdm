@@ -157,7 +157,7 @@ class KVStore(object):
         else:
             check_call(_LIB.MXKVStoreInit(self.handle, mx_uint(len(ckeys)), ckeys, cvals))
 
-    def push(self, key, value, priority=0):
+    def push(self, key, value, priority=0, reduce_type=-1):
         """ Pushes a single or a sequence of key-value pairs into the store.
 
         This function returns immediately after adding an operator to the engine.
@@ -231,10 +231,10 @@ class KVStore(object):
         ckeys, cvals, use_str_keys = _ctype_key_value(key, value)
         if use_str_keys:
             check_call(_LIB.MXKVStorePushEx(
-                self.handle, mx_uint(len(ckeys)), ckeys, cvals, ctypes.c_int(priority)))
+                self.handle, mx_uint(len(ckeys)), ckeys, cvals, ctypes.c_int(priority), ctypes.c_int(reduce_type)))
         else:
             check_call(_LIB.MXKVStorePush(
-                self.handle, mx_uint(len(ckeys)), ckeys, cvals, ctypes.c_int(priority)))
+                self.handle, mx_uint(len(ckeys)), ckeys, cvals, ctypes.c_int(priority), ctypes.c_int(reduce_type)))
 
 
     def pull(self, key, out=None, priority=0, ignore_sparse=True):
