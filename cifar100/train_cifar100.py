@@ -153,6 +153,7 @@ def main():
                             'lr_scheduler': lr_scheduler,
                             'momentum': opt.momentum}
 
+    # TODO: for local sgd, change rescale_grad, or simple rescale lr?
     mod.fit(train_data_iter,
             eval_data=val_data_iter,
             eval_metric=mx.metric.create(['acc', 'ce']),
