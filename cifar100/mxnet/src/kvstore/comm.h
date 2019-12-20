@@ -108,7 +108,7 @@ class Comm {
 
   float momentum_;
 
-  bool sign_sgd_;
+  int reduce_type_;
 
   std::unordered_map<int, NDArray> tilde_delta_buf_;
   std::unordered_map<int, std::vector<NDArray> > delta_buf_;
@@ -151,8 +151,8 @@ class CommCPU : public Comm {
     momentum_ = dmlc::GetEnv("MXNET_MOMENTUM", 0.9);
     LOG(INFO) << "momentum_ " << momentum_;
 
-    sign_sgd_ = dmlc::GetEnv("MXNET_SIGNSGD", false);
-    LOG(INFO) << "sign_sgd_ " << sign_sgd_;
+    reduce_type_ = dmlc::GetEnv("MXNET_REDUCE_TYPE", 0);
+    LOG(INFO) << "reduce_type_ " << reduce_type_;
   }
   virtual ~CommCPU() { }
 
@@ -268,16 +268,23 @@ class CommCPU : public Comm {
         mutable_vars.push_back(mom_vec[i].var());
       }
 
-      bool sign_sgd = sign_sgd_;
+      int reduce_type = reduce_type_;
 
       Engine::Get()->PushAsync(
-        [reduce, err_server, err_worker_vec, delta_vec, tilde_delta, mom_vec, sign_sgd, this](RunContext rctx,
+        [reduce, err_server, err_worker_vec, delta_vec, tilde_delta, mom_vec, reduce_type, this](RunContext rctx,
             Engine::CallbackOnComplete on_complete) {
           //ReduceSumCPU(reduce);
-          if (!sign_sgd) {
-            dist_ef_compr_sgd(reduce, err_server, err_worker_vec, delta_vec, tilde_delta, mom_vec);
-          } else {
+          if (reduce_type == 1) {
+            // sign sgd
             dist_sign_sgd(reduce, delta_vec, mom_vec);
+          } 
+          else if (reduce_type == 2) {
+            // ef sgd
+            dist_ef_compr_sgd(reduce, err_server, err_worker_vec, delta_vec, tilde_delta, mom_vec);
+          }
+          else {
+            // fully sync sgd
+            ReduceSumCPU(reduce);
           }
           on_complete();
         }, Context::CPU(), const_vars, mutable_vars,
