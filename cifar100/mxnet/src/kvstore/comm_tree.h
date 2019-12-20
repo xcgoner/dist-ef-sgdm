@@ -177,7 +177,7 @@ class CommDeviceTree : public CommDevice {
   }
 
   const NDArray& Reduce(int key, const std::vector<NDArray>& src,
-                        int priority) override {
+                        int priority, int reduce_type) override {
     // when this reduce is called from kvstore_dist, gc is not set
     // we don't do compression twice in dist_sync_device
     if ((gc_ != nullptr) && (gc_->get_type() != CompressionType::kNone)) {

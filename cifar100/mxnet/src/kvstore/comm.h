@@ -55,7 +55,7 @@ class Comm {
    * \brief returns src[0] + .. + src[src.size()-1]
    */
   virtual const NDArray& Reduce(
-      int key, const std::vector<NDArray>& src, int priority) = 0;
+      int key, const std::vector<NDArray>& src, int priority, int reduce_type) = 0;
   /**
    * \brief copy from src to dst[i] for every i
    */
@@ -839,7 +839,7 @@ class CommDevice : public Comm {
   }
 
   const NDArray& Reduce(int key, const std::vector<NDArray>& src,
-                        int priority) override {
+                        int priority, int reduce_type) override {
     // when this reduce is called from kvstore_dist, gc is not set
     // we don't do compression twice in dist_sync_device
     if ((gc_ != nullptr) && (gc_->get_type() != CompressionType::kNone)) {
