@@ -186,6 +186,7 @@ class BaseModule(object):
         self.optimizer_initialized = False
         self._symbol = None
         self._total_exec_bytes = 0
+        self.error_reset = 0
 
     ################################################################################
     # High Level API
@@ -413,7 +414,8 @@ class BaseModule(object):
             eval_batch_end_callback=None, initializer=Uniform(0.01),
             arg_params=None, aux_params=None, allow_missing=False,
             force_rebind=False, force_init=False, begin_epoch=0, num_epoch=None,
-            validation_metric=None, monitor=None, sparse_row_id_fn=None):
+            validation_metric=None, monitor=None, sparse_row_id_fn=None,
+            error_reset=0):
         """Trains the module parameters.
 
         Checkout `Module Tutorial <http://mxnet.io/tutorials/basic/module.html>`_ to see
@@ -502,6 +504,8 @@ class BaseModule(object):
                          allow_missing=allow_missing, force_init=force_init)
         self.init_optimizer(kvstore=kvstore, optimizer=optimizer,
                             optimizer_params=optimizer_params)
+
+        self.error_reset = error_reset
 
         if validation_metric is None:
             validation_metric = eval_metric
