@@ -472,7 +472,8 @@ class Module(BaseModule):
         self._exec_group.reshape(self._data_shapes, self._label_shapes)
 
     def init_optimizer(self, kvstore='local', optimizer='sgd',
-                       optimizer_params=(('learning_rate', 0.01),), force_init=False):
+                       optimizer_params=(('learning_rate', 0.01),), force_init=False,
+                       error_reset=0):
         """Installs and initializes optimizers.
 
         Parameters
@@ -659,14 +660,10 @@ class Module(BaseModule):
 
         self._params_dirty = True
         if self._update_on_kvstore:
-            # debug
-            print('_update_on_kvstore')
             _update_params_on_kvstore(self._exec_group.param_arrays,
                                       self._exec_group.grad_arrays,
                                       self._kvstore, self._exec_group.param_names)
         else:
-            # debug
-            print('_update_params')
             _update_params(self._exec_group.param_arrays,
                            self._exec_group.grad_arrays,
                            updater=self._updater,

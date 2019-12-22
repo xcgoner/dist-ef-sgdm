@@ -496,6 +496,11 @@ class BaseModule(object):
         """
         assert num_epoch is not None, 'please specify number of epochs'
 
+        self.error_reset = error_reset
+
+        if error_reset > 0:
+            error_reset_counter = 0
+
         self.bind(data_shapes=train_data.provide_data, label_shapes=train_data.provide_label,
                   for_training=True, force_rebind=force_rebind)
         if monitor is not None:
@@ -505,7 +510,6 @@ class BaseModule(object):
         self.init_optimizer(kvstore=kvstore, optimizer=optimizer,
                             optimizer_params=optimizer_params)
 
-        self.error_reset = error_reset
 
         if validation_metric is None:
             validation_metric = eval_metric
@@ -523,6 +527,10 @@ class BaseModule(object):
             end_of_batch = False
             next_data_batch = next(data_iter)
             while not end_of_batch:
+
+                if error_reset > 0:
+                    error_reset_counter += 1
+
                 data_batch = next_data_batch
                 if monitor is not None:
                     monitor.tic()
@@ -1033,7 +1041,8 @@ class BaseModule(object):
         raise NotImplementedError()
 
     def init_optimizer(self, kvstore='local', optimizer='sgd',
-                       optimizer_params=(('learning_rate', 0.01),), force_init=False):
+                       optimizer_params=(('learning_rate', 0.01),), force_init=False,
+                       error_reset=0):
         """Installs and initializes optimizers, as well as initialize kvstore for
            distributed training
 

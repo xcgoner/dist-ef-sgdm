@@ -30,6 +30,8 @@ parser.add_argument('--num-epochs', type=int, default=200,
                     help='number of training epochs.')
 parser.add_argument('--lr', type=float, default=0.1,
                     help='learning rate. default is 0.1.')
+parser.add_argument('--reset-interval', type=int, default=8,
+                    help='learning rate. default is 0.1.')
 parser.add_argument('--momentum', type=float, default=0.9,
                     help='momentum value for optimizer, default is 0.9.')
 parser.add_argument('--wd', type=float, default=0.0005,
@@ -162,7 +164,8 @@ def main():
             batch_end_callback = mx.callback.Speedometer(batch_size, 150),
             optimizer = optimizer,
             optimizer_params = optimizer_params,
-            initializer = mx.init.Xavier())
+            initializer = mx.init.Xavier(),
+            error_reset = opt.reset_interval)
 
 if __name__ == '__main__':
     main()

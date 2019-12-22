@@ -124,7 +124,7 @@ train_record = Time_recorder()
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)s %(levelname)s %(message)s',
                     datefmt='%m-%d %H:%M',
-                    filename='./train_imagenet_' + args.optimizer + '.log',
+                    filename='./train_imagenet_' + args.optimizer + '_' + str(args.reset_interval) + '_' + str(int(args.sparse_ratio*100)) + '.log',
                     filemode='a')
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
