@@ -39,6 +39,9 @@ class SGD_distribute(Optimizer):
 
         self.args = args
 
+        self.block_counter = 0
+        self.block_num = -1
+
         if not 0.0 <= lr:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if not 0.0 <= momentum:
@@ -90,8 +93,8 @@ class SGD_distribute(Optimizer):
         if closure is not None:
             loss = closure()
 
-        block_counter = 0
-        sparse_counter = 0
+        self.block_counter = 0
+
 
         for group in self.param_groups:
             weight_decay = group['weight_decay']
@@ -119,11 +122,11 @@ class SGD_distribute(Optimizer):
             dev_grads_buckets = _take_tensors(all_grads, self.bucket_size)
             for i, dev_grads in enumerate(dev_grads_buckets):
 
-                block_counter += 1
+                self.block_counter += 1
 
-                if random.uniform(0, 1) < self.sparse_ratio:
-                    sparse_counter += 1
-                    continue
+                if self.block_num > 0:
+                    if self.block_counter < round(self.block_num * self.sparse_ratio)
+                        continue
                 
                 d_p_new = _flatten_dense_tensors(dev_grads)
 
@@ -160,7 +163,9 @@ class SGD_distribute(Optimizer):
                 self.average_momentum()
                 self.reset_counter = 0
         
-        print("Sparsification: {}/{}".format(sparse_counter, block_counter))
+        if self.block_num <= 0:
+            self.block_num = self.block_counter
+        print("Sparsification: {}/{}".format(round(self.block_num * self.sparse_ratio), self.block_num))
 
         return loss
 
